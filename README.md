@@ -17,19 +17,7 @@
 5. Each stock will have a number 1 - 100. 1 is the most undervalued out of your universe of stocks, while 100 is the most overvalued
 
 ### Flow
-```get_datasets.py```
-        |
-        v
-```clean_data.py```
-        |
-        v
-```calc_ratios.py```
-        |
-        v
-```rank.py```
-        |
-        v
-```output.py```
+```get_datasets.py``` -> ```clean_data.py``` -> ```calc_ratios.py``` -> ```rank.py``` -> ```output.py```
 
 ### Input and Output
 * Will take in an excel sheet of stock tickers
