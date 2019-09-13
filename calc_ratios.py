@@ -1,0 +1,1 @@
+""" TODO: Take the values from clean_data.py and calc all the ratios for each stock"""
