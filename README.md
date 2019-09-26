@@ -17,9 +17,22 @@
 5. Each stock will have a number 1 - 100. 1 is the most undervalued out of your universe of stocks, while 100 is the most overvalued
 
 ### Flow
-```get_datasets.py``` -> ```clean_data.py``` -> ```calc_ratios.py``` -> ```rank.py``` -> ```output.py```
+```get_datasets.py``` ->  ```calc_ratios.py``` -> ```rank.py``` -> ```output.py```
 
 ### Input and Output
 * Will take in an excel sheet of stock tickers
 * Will output excel sheet with VC2 score for every stock in the input csv
+
+### How to Use get_datasets.py 
+* ```get_datasets.py``` creates a ```.csv``` file called ```company_metrics.csv```
+* To **request data of different stocks**, edit the beginning of the file and add / change the list of stocks (make sure you are using the stock ticker)
+* To **run** ```get_datasets.py```, navigate into the ```vc2_screen``` project folder (which has all the proj files, you can check with ```ls```). Run the file with ```python get_datasets.py```
+* It will take about 30 sec to run, and after you should see a file in the ```vc2_screen``` folder called ```company_metrics.csv```. The csv contains all the data needed for each company for each of the next parts of the project
+
+### How to use the dataset (.csv) in other files
+* Make sure you have pandas installed
+* After running ```get_datasets.py```, you can easily access the dataset (company_metrics.csv) in your file by using pandas
+* Run  ```df = df.read_csv("company_metrics.csv")``` to load the csv as a pandas dataframe in your folder
+* You can now print what the data frame looks like with ```print(df.head())```
+* ```df.loc["aapl"].tolist()``` will give you all the stats for aapl in a normal python list, you can replace aapl with any ticker
 
