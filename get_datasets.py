@@ -22,7 +22,7 @@ def get_curr_price(ticker):
     return result["historical"][-1]["close"]    
 
 def get_metrics(ticker):
-    response = requests.get("https://financialmodelingprep.com/api/v3/company-key-metrics/{}?period=quarter".format(ticker))
+    response = requests.get("https://financialmodelingprep.com/api/v3/company-key-metrics/{}?period=quarter".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_key_metrics = response.json()
