@@ -14,13 +14,21 @@ alist = []
 adict = {}
 def calc_ratios():
     df = pd.read_csv("company_metrics.csv")
-    print(df[:-1])
     for i in range(len(stocks)):
         alist = df.loc[i].tolist()
         #print(alist)
-        pb = alist[1]
-        pe = alist[6]
-        ps = 1 / alist[3]
+        if alist[1] == 0:
+            pb = 0
+        else:
+            pb = alist[1]
+        if alist[6] == 0:
+            pe = 0
+        else:
+            pe = alist[6]
+        if alist[3] == 0:
+            ps = 0
+        else:
+            ps = alist[3]
         if alist[4] == 0:
             e_ev = 0
         else:
@@ -29,15 +37,26 @@ def calc_ratios():
             pcf = 0
         else:
             pcf = alist[8] / alist[5]
-        #if
-        #dy = alist
-        adict[stocks[i]] = [pb,pe,ps,e_ev,pcf]
-        alist = []
-    #print(adict)
+        if alist[7] == 0:
+            dy = 0
+        else:
+            dy = alist[7]
+        if i == 0:
+            adict["pb"] = [pb]
+            adict["pe"] = [pe]
+            adict["ps"] = [ps]
+            adict["e_ev"] = [e_ev]
+            adict["pcf"] = [pcf]
+            adict["dy"] = [dy]
+        else:
+            adict["pb"] += [pb]
+            adict["pe"] += [pe]
+            adict["ps"] += [ps]
+            adict["e_ev"] += [e_ev]
+            adict["pcf"] += [pcf]
+            adict["dy"] += [dy]
 calc_ratios()
-def ratio_to_dataframe():
-    newdf = pd.DataFrame(adict,index = ["pb","pe","ps","e_ev","pcf"])
-    #print(newdf)
-ratio_to_dataframe()
 
-#newdf.to_csv("ratios.csv")
+newdf = pd.DataFrame(adict,index = ["AAPL","MSFT","F","FIT","TWTR","AMZN","ATVI","MMM","CVX","UNP"])
+print(newdf)
+ratios = newdf.to_csv("ratios.csv")
