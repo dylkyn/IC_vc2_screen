@@ -4,22 +4,22 @@ Assume you have all the necessary inputs from the previous file, like the ratio 
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv("ratios.csv")
+df = pd.read_csv("ratios.csv", index_col=0)
 
 def rank_ratio():
-    df['PB ratio rank'] = df['Pb ratio'].rank(ascending=False)
-    df['PS ratio rank'] = df['PS ratio'].rank(ascending=False)
-    df['EBITDA to EV ratio rank'] = df['EBITDA to EV ratio'].rank(ascending=False)
-    df['PCF ratio rank'] = df['PCF ratio'].rank(ascending=False)
-    df['PE ratio rank'] = df['PE ratio'].rank(ascending=False)
-    df['shareholder yield rank'] = df['shareholder yield'].rank(ascending=False)
+    df['pb_rank'] = df['pb'].rank(ascending=False)
+    df['pe_rank'] = df['pe'].rank(ascending=False)
+    df['ps_rank'] = df['ps'].rank(ascending=False)
+    df['e_ev_rank'] = df['e_ev'].rank(ascending=False)
+    df['pcf_rank'] = df['pcf'].rank(ascending=False)
+    df['dy_rank'] = df['dy'].rank(ascending=False)
 
 def rank_ticker():
     rank_ratio()
-    df['ratio_avg'] = df.loc[:, 'PB ratio rank':'sharehold yield rank'].mean(axis=0, numeric_only=True)
+    df['ratio_avg'] = df.loc[:, 'pb_rank':'dy_rank'].mean(axis=1, numeric_only=True)
     df['ratio_rank'] = df['ratio_avg'].rank(ascending=False)
 
 if __name__ == '__main__':
-    rank_ratio()
     rank_ticker()
-    df.to_csv("vc2output.csv")
+    print(df)
+    df['ratio_rank'].sort_values().to_csv("vc2output.csv")
