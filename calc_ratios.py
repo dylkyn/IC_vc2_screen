@@ -12,6 +12,14 @@ stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UN
 import pandas as pd
 alist = []
 adict = {}
+
+def replace_zeros(df):
+    df = df[df > 0]
+    #replaces 0 and negative values with average (to give a neutral ranking of 50)
+    for col in df.columns:
+        df[col].fillna((df[col].median()), inplace=True)
+    return df
+    
 def calc_ratios():
     df = pd.read_csv("company_metrics.csv")
     for i in range(len(stocks)):
@@ -32,7 +40,7 @@ def calc_ratios():
         if alist[4] == 0:
             e_ev = 0
         else:
-            e_ev = 1 / alist[4]
+            e_ev = alist[4]
         if alist[5] == 0:
             pcf = 0
         else:
@@ -55,8 +63,10 @@ def calc_ratios():
             adict["e_ev"] += [e_ev]
             adict["pcf"] += [pcf]
             adict["dy"] += [dy]
-calc_ratios()
 
-newdf = pd.DataFrame(adict,index = ["AAPL","MSFT","F","FIT","TWTR","AMZN","ATVI","MMM","CVX","UNP"])
-print(newdf)
-ratios = newdf.to_csv("ratios.csv")
+if __name__ == "__main__":
+    calc_ratios()
+    newdf = pd.DataFrame(adict,index = ["AAPL","MSFT","F","FIT","TWTR","AMZN","ATVI","MMM","CVX","UNP"])
+    print(newdf)
+    newdf = replace_zeros(newdf)
+    ratios = newdf.to_csv("ratios.csv")
