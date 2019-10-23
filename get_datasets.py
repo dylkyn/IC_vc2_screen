@@ -13,13 +13,21 @@ req_attr = ["PB ratio" ,
             "PE ratio",
             "Dividend Yield",
            ]
-
 def get_curr_price(ticker):
     response = requests.get("https://financialmodelingprep.com/api/v3/historical-price-full/{}?serietype=line".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     result = response.json()
     return result["historical"][-1]["close"]    
+
+def get_reported_financials(ticker):
+    response = requests.get("https://sandbox.iexapis.com/stable/time-series/REPORTED_FINANCIALS/{}/10-Q?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    if response.status_code == 404:
+        return "Stock Info not Available"
+    comp_key_stats = response.json()
+    stock_transaction_list = [comp_key_stats[0]["StockRepurchasedAndRetiredDuringPeriodValue"],comp_key_stats[0]["StockIssuedDuringPeriodValueNewIssues"]]
+    print(stock_transaction_list)
+    return stock_transaction_list
 
 def get_metrics(ticker):
     response = requests.get("https://financialmodelingprep.com/api/v3/company-key-metrics/{}?period=quarter".format(ticker.upper()))
@@ -35,12 +43,15 @@ def get_metrics(ticker):
 def build_company_dict(ticker):
     metrics_dict = get_metrics(ticker)
     curr_price = get_curr_price(ticker)
+    stock_trans_list = get_reported_financials(ticker)
     metrics_dict["Market Price"] = curr_price
+    metrics_dict["StockRepurchasedAndRetiredDuringPeriodValue"] = stock_trans_list[0]
+    metrics_dict["StockIssuedDuringPeriodValueNewIssues"] = stock_trans_list[1]
     return metrics_dict
 
 def build_dataset(stocks):
     company_metrics_dict = build_company_dict('aapl')
-    df = pd.DataFrame(index=stocks, columns=['PB ratio', 'Market Cap', 'Revenue per Share', 'Enterprise Value over EBITDA', 'Operating Cash Flow per Share', 'PE ratio', 'Dividend Yield', 'Market Price'])
+    df = pd.DataFrame(index=stocks, columns=['PB ratio', 'Market Cap', 'Revenue per Share', 'Enterprise Value over EBITDA', 'Operating Cash Flow per Share', 'PE ratio', 'Dividend Yield', 'Market Price',"StockRepurchasedAndRetiredDuringPeriodValue","StockIssuedDuringPeriodValueNewIssues"])
     for ticker in stocks:
         df.loc[ticker] = build_company_dict(ticker)
     return df
