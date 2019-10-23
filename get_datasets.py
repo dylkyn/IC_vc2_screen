@@ -25,7 +25,15 @@ def get_reported_financials(ticker):
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_key_stats = response.json()
-    stock_transaction_list = [comp_key_stats[0]["StockRepurchasedAndRetiredDuringPeriodValue"],comp_key_stats[0]["StockIssuedDuringPeriodValueNewIssues"]]
+    stock_transaction_list = []
+    if "StockRepurchasedAndRetiredDuringPeriodValue" in comp_key_stats[0].keys:
+        stock_transaction_list += [comp_key_stats[0]["StockRepurchasedAndRetiredDuringPeriodValue"]
+    else:
+        stock_transaction_list += 0
+    if "StockIssuedDuringPeriodValueNewIssues" in comp_key_stats[0].keys:
+        stock_transaction_list += [comp_key_stats[0]["StockIssuedDuringPeriodValueNewIssues"]]
+    else:
+        stock_transaction_list += 0
     print(stock_transaction_list)
     return stock_transaction_list
 
