@@ -41,6 +41,10 @@ def calc_ratios():
             dy = 0
         else:
             dy = alist[7]
+        if alist[2] == 0:
+            sy = 0
+        else:
+            sy = (alist[9] - alist[10] + alist[11]) / alist[2]
         if i == 0:
             adict["pb"] = [pb]
             adict["pe"] = [pe]
@@ -48,6 +52,7 @@ def calc_ratios():
             adict["e_ev"] = [e_ev]
             adict["pcf"] = [pcf]
             adict["dy"] = [dy]
+            adict["sy"] = [sy]
         else:
             adict["pb"] += [pb]
             adict["pe"] += [pe]
@@ -55,6 +60,7 @@ def calc_ratios():
             adict["e_ev"] += [e_ev]
             adict["pcf"] += [pcf]
             adict["dy"] += [dy]
+            adict["sy"] += [sy]
 calc_ratios()
 
 newdf = pd.DataFrame(adict,index = ["AAPL","MSFT","F","FIT","TWTR","AMZN","ATVI","MMM","CVX","UNP"])
