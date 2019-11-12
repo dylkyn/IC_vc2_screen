@@ -4,7 +4,8 @@ import pandas as pd
 import requests
 import json 
 
-stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
+stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
+#stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
 req_attr = ["PB ratio" , 
             "Market Cap",
             "Revenue per Share", 
@@ -59,20 +60,33 @@ def get_metrics(ticker):
         comp_info[attr] = values_list[attr]
     return comp_info
 
+def get_balance_sheet(ticker):
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/financials/period=annual?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    if response.status_code == 404:
+        return "Stock Info not Available"
+    result_balance_sheet = response.json()
+    total_liabilities = 0
+    if "dividendsPaid" in result_dividends_paid["cashflow"][0].keys() and result_dividends_paid["cashflow"][0]["dividendsPaid"] != "null":
+        dividends_paid = result_dividends_paid["cashflow"][0]["dividendsPaid"]
+    else:
+        dividends_paid = 0
+    return dividends_paid
+
 def build_company_dict(ticker):
     metrics_dict = get_metrics(ticker)
     curr_price = get_curr_price(ticker)
-    stock_trans_list = get_reported_financials(ticker)
-    divi_paid = get_dividends_paid(ticker)
+    #stock_trans_list = get_reported_financials(ticker)
+    #divi_paid = get_dividends_paid(ticker)
     metrics_dict["Market Price"] = curr_price
-    metrics_dict["StockRepurchasedAndRetiredDuringPeriodValue"] = stock_trans_list[0]
-    metrics_dict["StockIssuedDuringPeriodValueNewIssues"] = stock_trans_list[1]
-    metrics_dict["dividendsPaid"] = divi_paid
+    #metrics_dict["StockRepurchasedAndRetiredDuringPeriodValue"] = stock_trans_list[0]
+    #metrics_dict["StockIssuedDuringPeriodValueNewIssues"] = stock_trans_list[1]
+    #metrics_dict["dividendsPaid"] = divi_paid
     return metrics_dict
 
 def build_dataset(stocks):
-    company_metrics_dict = build_company_dict("aapl")
-    df = pd.DataFrame(index=stocks, columns=['PB ratio', 'Market Cap', 'Revenue per Share', 'Enterprise Value over EBITDA', 'Operating Cash Flow per Share', 'PE ratio', 'Dividend Yield', 'Market Price',"StockRepurchasedAndRetiredDuringPeriodValue","StockIssuedDuringPeriodValueNewIssues","dividendsPaid"])
+    company_metrics_dict = build_company_dict("eqm")
+    #df = pd.DataFrame(index=stocks, columns=['PB ratio', 'Market Cap', 'Revenue per Share', 'Enterprise Value over EBITDA', 'Operating Cash Flow per Share', 'PE ratio', 'Dividend Yield', 'Market Price',"StockRepurchasedAndRetiredDuringPeriodValue","StockIssuedDuringPeriodValueNewIssues","dividendsPaid"])
+    df = pd.DataFrame(index=stocks, columns=['PB ratio', 'Market Cap', 'Revenue per Share', 'Enterprise Value over EBITDA', 'Operating Cash Flow per Share', 'PE ratio', 'Dividend Yield', 'Market Price'])
     for ticker in stocks:
         df.loc[ticker] = build_company_dict(ticker)
     return df
