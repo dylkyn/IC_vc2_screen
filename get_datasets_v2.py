@@ -15,22 +15,24 @@ req_attr = ["PS ratio",
            ]
 
 def get_curr_price(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/price?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    response = requests.get("https://cloud.iexapis.com/stable/stock/{}/price?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     result = response.json()
     return result
 
 def get_change_in_debt(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    response = requests.get("https://cloud.iexapis.com/stable/stock/{}/balance-sheet?period=annual&last=2&token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
-    comp_cf = response.json()
-    cf = comp_cf["cashflow"][0]["cashFlow"]
-    return cf
+    comp_dc = response.json()
+    tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"]
+    tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"]
+    debt_change = (tot_debt_last_yr - tot_debt_current) / tot_debt_current
+    return debt_change
 
 def get_cash_flow(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_cf = response.json()
@@ -38,7 +40,7 @@ def get_cash_flow(ticker):
     return cf
 
 def get_key_stats(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    response = requests.get("https://cloud.iexapis.com/stable/stock/{}/stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_key_stats = response.json()
@@ -48,13 +50,13 @@ def get_key_stats(ticker):
     return comp_stats
 
 def get_advanced_stats(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/advanced-stats?token=Tpk_07d1028083ce4edc98dc3d09d76092d7".format(ticker.upper()))
+    response = requests.get("https://cloud.iexapis.com/stable/stock/{}/advanced-stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_adv_stats = response.json()
     comp_info =  dict.fromkeys(req_attr, 0)
     comp_info["PS Ratio"] = comp_adv_stats["priceToSales"]
-    comp_info["PB Ratio"] = comp_adv_stats["priceToSales"]
+    comp_info["PB Ratio"] = comp_adv_stats["priceToBook"]
     if comp_adv_stats["EBITDA"] == 0 or comp_adv_stats["enterpriseValue"] == 0:
         comp_info["EBITDA to EV"] = 0
     else:
@@ -70,15 +72,19 @@ def build_company_dict(ticker):
     metrics_dict["PE Ratio"] = pe_r
     cash_flow = get_cash_flow(ticker)
     curr_price = get_curr_price(ticker)
-    if curr_price == 0 or cash_flow == 0:
-        metrics_dict["Price to Cashflow"] = 0
+    if (type(curr_price) == float or type(curr_price) == int) and (type(cash_flow) == float or type(cash_flow) == int):
+        metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
     else:
-        metrics_dict["Price to Cashflow"] = curr_price / cash_flow
+        metrics_dict["Price to Cashflow"] = 0
+    # if curr_price == 0 or cash_flow == 0:
+    #     metrics_dict["Price to Cashflow"] = 0
+    # else:
+    #     metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
     return metrics_dict
 
 def build_dataset(stocks):
     # company_metrics_dict = build_company_dict(stocks[0])
-    df = pd.DataFrame(index=stocks, columns=["PS ratio","PB ratio","EBITDA to EV","PE ratio","Dividend Yield","Price to Cashflow"])
+    df = pd.DataFrame(index=stocks, columns=["PS Ratio","PB Ratio","EBITDA to EV","PE Ratio","Dividend Yield","Price to Cashflow"])
     for ticker in stocks:
         df.loc[ticker] = build_company_dict(ticker)
     return df
@@ -89,6 +95,4 @@ if __name__== "__main__" :
     df = build_dataset(stocks)
     print("Took {}".format(time.time() - start_time))
     print(df.head())
-    df.to_csv("company_metrics.csv")
-
-ratios = df.to_csv("ratios.csv")
+    df.to_csv("ratios.csv")
