@@ -12,6 +12,7 @@ req_attr = ["PS ratio",
             "Dividend Yield",
             "PE ratio",
             "Price to Cashflow",
+            "Net Debt Change"
            ]
 
 def get_curr_price(ticker):
@@ -76,15 +77,12 @@ def build_company_dict(ticker):
         metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
     else:
         metrics_dict["Price to Cashflow"] = 0
-    # if curr_price == 0 or cash_flow == 0:
-    #     metrics_dict["Price to Cashflow"] = 0
-    # else:
-    #     metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
+    metrics_dict["Net Debt Change"] = get_change_in_debt(ticker)
     return metrics_dict
 
 def build_dataset(stocks):
     # company_metrics_dict = build_company_dict(stocks[0])
-    df = pd.DataFrame(index=stocks, columns=["PS Ratio","PB Ratio","EBITDA to EV","PE Ratio","Dividend Yield","Price to Cashflow"])
+    df = pd.DataFrame(index=stocks, columns=["PS Ratio","PB Ratio","EBITDA to EV","PE Ratio","Dividend Yield","Price to Cashflow","Net Debt Change"])
     for ticker in stocks:
         df.loc[ticker] = build_company_dict(ticker)
     return df

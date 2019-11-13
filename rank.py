@@ -6,13 +6,16 @@ import numpy as np
 
 df = pd.read_csv("ratios.csv", index_col=0)
 
+"PS Ratio","PB Ratio","EBITDA to EV","PE Ratio","Dividend Yield","Price to Cashflow","Net Debt Change"
+
 def rank_ratio():
-    df['pb_rank'] = df['pb'].rank(pct=True, ascending=True) * 100
-    df['pe_rank'] = df['pe'].rank(pct=True, ascending=True) * 100
-    df['ps_rank'] = df['ps'].rank(pct=True, ascending=True) * 100
-    df['e_ev_rank'] = df['e_ev'].rank(pct=True, ascending=True) * 100
-    df['pcf_rank'] = df['pcf'].rank(pct=True, ascending=True) * 100
-    df['dy_rank'] = df['dy'].rank(pct=True, ascending=False) * 100
+    df['pb_rank'] = df['PB Ratio'].rank(pct=True, ascending=True) * 100
+    df['pe_rank'] = df['PE Ratio'].rank(pct=True, ascending=True) * 100
+    df['ps_rank'] = df['PS Ratio'].rank(pct=True, ascending=True) * 100
+    df['e_ev_rank'] = df['EBITDA to EV'].rank(pct=True, ascending=True) * 100
+    df['pcf_rank'] = df['Price to Cashflow'].rank(pct=True, ascending=True) * 100
+    df['dy_rank'] = df['Dividend Yield'].rank(pct=True, ascending=False) * 100
+    df['dc_rank'] = df['Net Debt Change'].rank(pct=True, ascending=False) * 100
 
 """def rank_ticker():
     rank_ratio()
@@ -22,9 +25,9 @@ def rank_ratio():
 def rank_ticker(df):
     #TODO: handle 0s, rank starting from 1
     rank_ratio()
-    df["ratios_total"] = df.loc[:, "pb_rank":"dy_rank"].sum(axis=1)
+    df["ratios_total"] = df.loc[:, "pb_rank":"dc_rank"].sum(axis=1)
     df['VC2 Score'] = df['ratios_total'].rank(pct=True, ascending=True) * 100
-    result_df = df.loc[:, "pb":"dy"]
+    result_df = df.loc[:, "PB Ratio":"Net Debt Change"]
     result_df["VC2_Score"] = df["VC2 Score"]
     result_df.sort_values(by = "VC2_Score", axis=0, ascending=True, inplace=True, kind='quicksort', na_position='last')
     return result_df
