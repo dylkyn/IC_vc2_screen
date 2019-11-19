@@ -2,9 +2,14 @@
 
 import pandas as pd
 import requests
-import json 
+import json
+import csv
 
-stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
+with open('tickers.csv', 'r') as file:
+    reader = csv.reader(file)
+    stocks = list(reader)
+
+#stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
 #stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
 req_attr = ["PS ratio",
             "PB ratio" ,
