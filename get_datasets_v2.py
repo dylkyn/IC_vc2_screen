@@ -4,7 +4,15 @@ import pandas as pd
 import requests
 import json 
 
-stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
+import csv
+stocks = []
+with open('REIT.csv', 'r') as file:
+    for row in csv.reader(file):
+        stocks.append(row[0])
+    file.close()
+del stocks[0]
+
+# stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
 #stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
 req_attr = ["PS ratio",
             "PB ratio" ,
@@ -27,17 +35,27 @@ def get_change_in_debt(ticker):
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_dc = response.json()
-    tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"]
-    tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"]
-    debt_change = (tot_debt_last_yr - tot_debt_current) / tot_debt_current
-    return debt_change
+    try:
+        tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"]
+        tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"]
+        debt_change = (tot_debt_last_yr - tot_debt_current) / tot_debt_current
+        return debt_change
+    except:
+        print(ticker)
+        debt_change = 0
+        return debt_change
 
 def get_cash_flow(ticker):
     response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_cf = response.json()
-    cf = comp_cf["cashflow"][0]["cashFlow"]
+    try:
+        cf = comp_cf["cashflow"][0]["cashFlow"]
+    except:
+        print(ticker)
+        cf = 0
+        return cf
     return cf
 
 def get_key_stats(ticker):
@@ -74,7 +92,10 @@ def build_company_dict(ticker):
     cash_flow = get_cash_flow(ticker)
     curr_price = get_curr_price(ticker)
     if (type(curr_price) == float or type(curr_price) == int) and (type(cash_flow) == float or type(cash_flow) == int):
-        metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
+        try:
+            metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
+        except:
+            metrics_dict["Price to Cashflow"] = 0
     else:
         metrics_dict["Price to Cashflow"] = 0
     metrics_dict["Net Debt Change"] = get_change_in_debt(ticker)
