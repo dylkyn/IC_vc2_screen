@@ -2,22 +2,15 @@
 
 import pandas as pd
 import requests
-import json 
-
+import json
 import csv
-stocks = []
-with open('REIT.csv', 'r') as file:
-    for row in csv.reader(file):
-        stocks.append(row[0])
-    file.close()
-del stocks[0]
 
-stocks = ["HPQ","CTSH","ADSK","LRCX","ADI","AMD","NOW","AMAT","MU","INTU","QCOM","ORCL","IBM","TXN","AVGO","NVDA","CRM","ADBE","CSCO","INTC","FB","GOOG","GOOGL","MSFT","AAPL","VZ","PYPL","ACN","MA"]
-# stocks = ["ILMN","BIIB","VRTX","AGN","BSX","ZTS","SYK","ISRG","BDX","ANTM","CI","GILD","CVS","DHR","LLY","TMO","ABBV","AMGN","BMY","MDT","ABT","PFE","MRK","UNH","JNJ"]
-# stocks = ["ZION","XLF","WRB","WLTW","WFC","USB","UNM","TRV","TROW","TFC","SYF","STT","SPGI","SIVB","SCHW","RJF","RF","RE","PRU","PNC","PGR","PFG","PBCT","NTRS","NDAQ","MTB","MSCI","MS","MMC","MKTX","MET","MCO","LNC","L","KEY","JPM","IVZ","ICE","HIG","HBAN","GS","GL","FRC","FITB","ETFC","DFS","COF","CME","CMA","CINF","CFG","CBOE","CB","C","BRK.B","BLK","BK","BEN","BAC","AXP","AON","AMP","ALL","AJG","AIZ","AIG","AFL"]
-# stocks = ["XOM","XEC","WMB","VLO","SLB","PXD","PSX","OXY","OKE","NOV","NBL","MRO","MPC","KMI","HP","HFC","HES","HAL","FTI","FANG","EOG","DVN","CXO","CVX","COP","COG","BKR","APA"]
-# stocks = ["K", "CHD", "CLX", "KHC", "MKC", "KR", "HSY", "MNST", "ADM", "TSN", "STZ", "GIS", "SYY", "EL", "WBA", "KMB", "CL", "MDLZ", "COST", "PM", "MO", "WMT", "PEP", "KO", "PG"]
-# stocks = ["AMZN", "HD", "MCD", "NKE", "SBUX", "LOW", "BKNG", "TJX", "TGT", "GM", "ROST", "DG", "MAR", "F", "ORLY", "YUM", "HLT", "VFC", "AZO", "EBAY", "LVS", "APTV", "CMG", "RCL", "DLTR", "BBY", "CCL", "DHI", "LEN", "MGM", "KMX", "ULTA", "EXPE", "GPC", "GRMN", "TIF", "DRI", "NVR", "HAS", "WYNN", "NCLH", "PHM", "TSCO", "AAP", "LKQ", "WHR", "BWA", "MHK", "TPR", "NWL", "KSS", "PVH", "LEG", "RL", "CPRI", "HOG", "M", "HBI", "HRB", "LB", "JWN", "GPS", "UAA", "UA"]
+with open('tickers.csv', 'r') as file:
+    reader = csv.reader(file)
+    stocks = list(reader)
+
+#stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
+#stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
 req_attr = ["PS ratio",
             "PB ratio" ,
             "EBITDA to EV",
