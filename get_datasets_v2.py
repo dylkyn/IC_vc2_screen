@@ -4,10 +4,13 @@ import pandas as pd
 import requests
 import json
 import csv
+import itertools
 
-with open('tickers.csv', 'r') as file:
+with open('REIT.csv', 'r') as file:
     reader = csv.reader(file)
-    stocks = list(reader)
+    stocks = list(itertools.chain.from_iterable(zip(*reader)))
+    stocks.remove(stocks[0])
+    print(stocks)
 
 #stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
 #stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
@@ -22,7 +25,7 @@ req_attr = ["PS ratio",
 
 def get_curr_price(ticker):
     # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/price?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/price?token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/price?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     result = response.json()
@@ -30,7 +33,7 @@ def get_curr_price(ticker):
 
 def get_change_in_debt(ticker):
     # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/balance-sheet?period=annual&last=2&token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/balance-sheet?period=annual&last=2&token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/balance-sheet?period=annual&last=2&token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_dc = response.json()
@@ -45,7 +48,7 @@ def get_change_in_debt(ticker):
 
 def get_cash_flow(ticker):
     # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_cf = response.json()
@@ -59,7 +62,7 @@ def get_cash_flow(ticker):
 
 def get_key_stats(ticker):
     # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_key_stats = response.json()
@@ -68,9 +71,10 @@ def get_key_stats(ticker):
     comp_stats += [comp_key_stats["peRatio"]]
     return comp_stats
 
+
 def get_advanced_stats(ticker):
     # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/advanced-stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/advanced-stats?token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/advanced-stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_adv_stats = response.json()
