@@ -6,10 +6,9 @@ import json
 import csv
 import itertools
 
-with open('REIT.csv', 'r') as file:
+with open('./sample_inputs/inputs_mpw.csv', 'r') as file:
     reader = csv.reader(file)
     stocks = list(itertools.chain.from_iterable(zip(*reader)))
-    stocks.remove(stocks[0])
     print(stocks)
 
 #stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
@@ -37,27 +36,6 @@ def get_change_in_debt(ticker):
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_dc = response.json()
-    print(ticker)
-    tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"] if comp_dc["balancesheet"] is not None else None
-    tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"] if len(comp_dc["balancesheet"]) > 1 else None
-    debt_change = (tot_debt_last_yr - tot_debt_current) / tot_debt_current if tot_debt_last_yr is not None and tot_debt_current is not None else None
-    return debt_change
-
-def get_cash_flow(ticker):
-    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
-    if response.status_code == 404:
-        return "Stock Info not Available"
-    comp_cf = response.json()
-    cf = comp_cf["cashflow"][0]["cashFlow"] if len(comp_cf["cashflow"]) > 0 else 0
-    return cf
-
-def get_key_stats(ticker):
-    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
-    if response.status_code == 404:
-        return "Stock Info not Available"
-    comp_dc = response.json()
     try:
         tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"]
         tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"]
@@ -67,6 +45,31 @@ def get_key_stats(ticker):
         debt_change = 0
         return debt_change
 
+
+def get_cash_flow(ticker):
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    if response.status_code == 404:
+        return "Stock Info not Available"
+    comp_cf = response.json()
+    try:
+        cf = comp_cf["cashflow"][0]["cashFlow"]
+    except:
+        print(ticker)
+        cf = 0
+        return cf
+    return cf
+
+def get_key_stats(ticker):
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    if response.status_code == 404:
+        return "Stock Info not Available"
+    comp_key_stats = response.json()
+    comp_stats = []
+    comp_stats += [comp_key_stats["dividendYield"]]
+    comp_stats += [comp_key_stats["peRatio"]]
+    return comp_stats
 
 def get_advanced_stats(ticker):
     # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/advanced-stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
@@ -107,6 +110,7 @@ def build_dataset(stocks):
     # company_metrics_dict = build_company_dict(stocks[0])
     df = pd.DataFrame(index=stocks, columns=["PS Ratio","PB Ratio","EBITDA to EV","PE Ratio","Dividend Yield","Price to Cashflow","Net Debt Change"])
     for ticker in stocks:
+        print(ticker)
         df.loc[ticker] = build_company_dict(ticker)
     return df
 

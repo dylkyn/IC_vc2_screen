@@ -9,8 +9,4 @@ PS = df["PS Ratio"].hist(bins = 50)
 PS.set_title("PS Ratio Histogram")
 # PS.set_xlabel("")
 plt.show()
-<<<<<<< HEAD
 style.use("ggplot")
-=======
-style.use("ggplot")
->>>>>>> 052dcf6b68ffa43e1705838d79712397821bfc98
