@@ -23,7 +23,8 @@ req_attr = ["PS Ratio",
            ]
 
 def get_curr_price(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/price?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/price?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/price?token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     result = response.json()
@@ -41,6 +42,7 @@ def get_change_in_debt(ticker):
     return debt_change
 
 def get_cash_flow(ticker):
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
     response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
@@ -49,25 +51,32 @@ def get_cash_flow(ticker):
     return cf
 
 def get_key_stats(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/balance-sheet?period=annual&last=2&token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/balance-sheet?period=annual&last=2&token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
-    comp_key_stats = response.json()
-    comp_stats = []
-    comp_stats += [comp_key_stats["dividendYield"]]
-    comp_stats += [comp_key_stats["peRatio"]]
-    return comp_stats
+    comp_dc = response.json()
+    try:
+        tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"]
+        tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"]
+        debt_change = (tot_debt_last_yr - tot_debt_current) / tot_debt_current
+        return debt_change
+    except:
+        debt_change = 0
+        return debt_change
 
 def get_advanced_stats(ticker):
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/advanced-stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/advanced-stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/advanced-stats?token=Tsk_17d26919e34d483c9ad0d3d6bdc16882".format(ticker.upper()))
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_adv_stats = response.json()
     comp_info =  dict.fromkeys(req_attr, 0)
     comp_info["PS Ratio"] = comp_adv_stats["priceToSales"]
     comp_info["PB Ratio"] = comp_adv_stats["priceToBook"]
-    if (comp_adv_stats["EBITDA"] == 0 or comp_adv_stats["EBITDA"] is None) or (comp_adv_stats["enterpriseValue"] == 0 or comp_adv_stats["enterpriseValue"] is None):
-        comp_info["EBITDA to EV"] is None
+    if comp_adv_stats["EBITDA"] == 0 or comp_adv_stats["enterpriseValue"] == 0 or type(comp_adv_stats["EBITDA"]) != int:
+        comp_info["EBITDA to EV"] = 0
+        print(ticker)
     else:
         comp_info["EBITDA to EV"] = (comp_adv_stats["EBITDA"]) / (comp_adv_stats["enterpriseValue"])
     return comp_info
@@ -82,7 +91,10 @@ def build_company_dict(ticker):
     cash_flow = get_cash_flow(ticker)
     curr_price = get_curr_price(ticker)
     if (type(curr_price) == float or type(curr_price) == int) and (type(cash_flow) == float or type(cash_flow) == int):
-        metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow) if float(cash_flow) != 0 else None
+        try:
+            metrics_dict["Price to Cashflow"] = float(curr_price) / float(cash_flow)
+        except:
+            metrics_dict["Price to Cashflow"] = 0
     else:
         metrics_dict["Price to Cashflow"] = 0
     metrics_dict["Net Debt Change"] = get_change_in_debt(ticker)
@@ -125,6 +137,21 @@ if __name__== "__main__" :
     df = build_dataset(stocks)
     print("Took {}".format(time.time() - start_time))
     print(df.head())
-    rank_ratio()
-    print(df)
-    rank_ticker().to_csv("vc2_results.csv")
+    # nonzero_mean = 0
+    # nonzero_mean = df[ df["PS Ratio"] != 0 ].mean()
+    # df.loc[ df["PS Ratio"] == 0, "PS Ratio" ] = nonzero_mean
+    # nonzero_mean = df[ df["PB Ratio"] != 0 ].mean()
+    # df.loc[ df["PB Ratio"] == 0, "PB Ratio" ] = nonzero_mean
+    # nonzero_mean = df[ df["EBITDA to EV"] != 0 ].mean()
+    # df.loc[ df["EBITDA to EV"] == 0, "EBITDA to EV"] = nonzero_mean
+    # nonzero_mean = df[ df["PE Ratio"] != 0 ].mean()
+    # df.loc[ df["PE Ratio"] == 0, "PE Ratio"] = nonzero_mean
+    # nonzero_mean = df[ df["Dividend Yield"] != 0 ].mean()
+    # df.loc[ df["Dividend Yield"] == 0, "Dividend Yield"] = nonzero_mean
+    # nonzero_mean = df[ df["Price to Cashflow"] != 0 ].mean()
+    # df.loc[ df["Price to Cashflow"] == 0, "Price to Cashflow"] = nonzero_mean
+    # nonzero_mean = df[ df["Net Debt Change"] != 0 ].mean()
+    # df.loc[ df["Net Debt Change"] == 0, "Net Debt Change"] = nonzero_mean
+    df.to_csv("ratios.csv")
+
+# import rank
