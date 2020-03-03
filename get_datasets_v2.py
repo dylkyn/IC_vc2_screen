@@ -14,11 +14,11 @@ with open('REIT.csv', 'r') as file:
 
 #stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
 #stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
-req_attr = ["PS ratio",
-            "PB ratio" ,
+req_attr = ["PS Ratio",
+            "PB Ratio" ,
             "EBITDA to EV",
             "Dividend Yield",
-            "PE ratio",
+            "PE Ratio",
             "Price to Cashflow",
             "Net Debt Change"
            ]
@@ -37,6 +37,27 @@ def get_change_in_debt(ticker):
     if response.status_code == 404:
         return "Stock Info not Available"
     comp_dc = response.json()
+    print(ticker)
+    tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"] if comp_dc["balancesheet"] is not None else None
+    tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"] if len(comp_dc["balancesheet"]) > 1 else None
+    debt_change = (tot_debt_last_yr - tot_debt_current) / tot_debt_current if tot_debt_last_yr is not None and tot_debt_current is not None else None
+    return debt_change
+
+def get_cash_flow(ticker):
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    if response.status_code == 404:
+        return "Stock Info not Available"
+    comp_cf = response.json()
+    cf = comp_cf["cashflow"][0]["cashFlow"] if len(comp_cf["cashflow"]) > 0 else 0
+    return cf
+
+def get_key_stats(ticker):
+    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
+    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
+    if response.status_code == 404:
+        return "Stock Info not Available"
+    comp_dc = response.json()
     try:
         tot_debt_current = comp_dc["balancesheet"][0]["totalLiabilities"]
         tot_debt_last_yr = comp_dc["balancesheet"][1]["totalLiabilities"]
@@ -45,31 +66,6 @@ def get_change_in_debt(ticker):
     except:
         debt_change = 0
         return debt_change
-
-def get_cash_flow(ticker):
-    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/cash-flow?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/cash-flow?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
-    if response.status_code == 404:
-        return "Stock Info not Available"
-    comp_cf = response.json()
-    try:
-        cf = comp_cf["cashflow"][0]["cashFlow"]
-    except:
-        print(ticker)
-        cf = 0
-        return cf
-    return cf
-
-def get_key_stats(ticker):
-    # response = requests.get("https://cloud.iexapis.com/stable/stock/{}/stats?token=pk_06dd0bea7ba7428a96270972f47bdf23".format(ticker.upper()))
-    response = requests.get("https://sandbox.iexapis.com/stable/stock/{}/stats?token=Tpk_81818462745e48e7821ce49f070f5816".format(ticker.upper()))
-    if response.status_code == 404:
-        return "Stock Info not Available"
-    comp_key_stats = response.json()
-    comp_stats = []
-    comp_stats += [comp_key_stats["dividendYield"]]
-    comp_stats += [comp_key_stats["peRatio"]]
-    return comp_stats
 
 
 def get_advanced_stats(ticker):
@@ -113,6 +109,30 @@ def build_dataset(stocks):
     for ticker in stocks:
         df.loc[ticker] = build_company_dict(ticker)
     return df
+
+def rank_ratio():
+    df['pb_rank'] = df['PB Ratio'].rank(pct=True, ascending=True) * 100
+    df['pe_rank'] = df['PE Ratio'].rank(pct=True, ascending=True) * 100
+    df['ps_rank'] = df['PS Ratio'].rank(pct=True, ascending=True) * 100
+    df['e_ev_rank'] = df['EBITDA to EV'].rank(pct=True, ascending=True) * 100
+    df['pcf_rank'] = df['Price to Cashflow'].rank(pct=True, ascending=True) * 100
+    df['dy_rank'] = df['Dividend Yield'].rank(pct=True, ascending=False) * 100
+    df['dc_rank'] = df['Net Debt Change'].rank(pct=True, ascending=False) * 100
+
+"""def rank_ticker():
+    rank_ratio()
+    df['ratio_avg'] = df.loc[:, 'pb_rank':'dy_rank'].mean(axis=1, numeric_only=True)
+    df['ratio_rank'] = df['ratio_avg'].rank(ascending=False)"""
+
+def rank_ticker():
+    #TODO: handle 0s, rank starting from 1
+    rank_ratio()
+    df["ratios_total"] = df.loc[:, "pb_rank":"dc_rank"].sum(axis=1)
+    df['VC2 Score'] = df['ratios_total'].rank(pct=True, ascending=True) * 100
+    result_df = df.loc[:, "PB Ratio":"Net Debt Change"]
+    result_df["VC2_Score"] = df["VC2 Score"]
+    result_df.sort_values(by = "VC2_Score", axis=0, ascending=True, inplace=True, kind='quicksort', na_position='last')
+    return result_df
 
 if __name__== "__main__" :
     import time

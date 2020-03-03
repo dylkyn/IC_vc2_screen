@@ -35,4 +35,4 @@ def rank_ticker(df):
 if __name__ == '__main__':
     rank_ratio()
     print(df)
-    rank_ticker(df).to_csv("vc2results.csv")
+    rank_ticker(df).to_csv("vis_vc2.csv")
