@@ -34,7 +34,7 @@ remove_stocks = []
 # stocks = ["ZION","XLF","WRB","WLTW","WFC","USB","UNM","TRV","TROW","TFC","SYF","STT","SPGI","SIVB","SCHW","RJF","RF","RE","PRU","PNC","PGR","PFG","PBCT","NTRS","NDAQ","MTB","MSCI","MS","MMC","MKTX","MET","MCO","LNC","L","KEY","JPM","IVZ","ICE","HIG","HBAN","GS","GL","FRC","FITB","ETFC","DFS","COF","CME","CMA","CINF","CFG","CBOE","CB","C","BRK.B","BLK","BK","BEN","BAC","AXP","AON","AMP","ALL","AJG","AIZ","AIG","AFL"]
 # stocks = ["KO", "AMZN", "HD", "MCD", "NKE", "SBUX", "LOW", "BKNG", "TJX", "TGT", "GM", "ROST", "DG", "MAR", "F", "ORLY", "YUM", "HLT", "VFC", "AZO", "EBAY", "LVS", "APTV", "CMG", "RCL", "DLTR", "BBY", "CCL", "DHI", "LEN", "MGM", "KMX", "ULTA", "EXPE", "GPC", "GRMN", "TIF", "DRI", "NVR", "HAS", "WYNN", "NCLH", "PHM", "TSCO", "AAP", "LKQ", "WHR", "BWA", "MHK", "TPR", "NWL", "KSS", "PVH", "LEG", "RL", "CPRI", "HOG", "M", "HBI", "HRB", "LB", "JWN", "GPS", "UAA", "UA"]
 # stocks = ['VNOM','MPC','BKR','HAL','SLB','XOM','NOV','PSX','HP','CVX','VLO','APA','NBL','KMI','OXY','FTI','WMB','FANG','HFC','MRO','DVN','CXO','OKE','XEC','EOG','COP','COG','PXD']
-stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
+# stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
 #stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
 req_attr = ["PS Ratio",
             "PB Ratio" ,
@@ -170,7 +170,7 @@ def build_dataset(stocks):
     # print(remove_stocks)
     if len(remove_stocks) > 0:
         for let in remove_stocks:
-            df.drop(index = let)
+            df = df.drop(index = let)
     return df
 
 if __name__== "__main__" :
