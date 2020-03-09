@@ -36,11 +36,11 @@ remove_stocks = []
 # stocks = ['VNOM','MPC','BKR','HAL','SLB','XOM','NOV','PSX','HP','CVX','VLO','APA','NBL','KMI','OXY','FTI','WMB','FANG','HFC','MRO','DVN','CXO','OKE','XEC','EOG','COP','COG','PXD']
 stocks = ["EQM", "CQP" , "TCP" , "CEQP" , "WES" , "DCP" , "MPLX" , "EPD" , "ET" , "ENLC" , "ENBL"]
 #stocks = ['AAPL' , 'MSFT', "F", "FIT", "TWTR", "AMZN", "ATVI", "MMM", "CVX", "UNP"]
-req_attr = ["PS ratio",
-            "PB ratio" ,
+req_attr = ["PS Ratio",
+            "PB Ratio" ,
             "EBITDA to EV",
             "Dividend Yield",
-            "PE ratio",
+            "PE Ratio",
             "Price to Cashflow",
             "Net Debt Change"
            ]

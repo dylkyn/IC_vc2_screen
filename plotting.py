@@ -10,6 +10,7 @@ import chart_studio.plotly as py
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 df = pd.read_csv("ratios.csv", index_col=0)
+<<<<<<< HEAD
 stock_name = "SCHW"
 
 hist_data = [df[ df["PS Ratio"] != 0].iloc[:,0].values.tolist()]
@@ -70,3 +71,14 @@ fig.show()
 # pl.hist(df["PS Ratio"],density=True, bins = 40)
 # pl.annotate("*AAPL's PS Ratio", (1,.1))
 # pl.show() 
+=======
+PS = df["PS Ratio"].hist(bins = 50)
+PS.set_title("PS Ratio Histogram")
+# PS.set_xlabel("")
+plt.show()
+<<<<<<< HEAD
+style.use("ggplot")
+=======
+style.use("ggplot")
+>>>>>>> 052dcf6b68ffa43e1705838d79712397821bfc98
+>>>>>>> 674c2890152fd9da6ffd25f8c76a1fe733b66ddc
